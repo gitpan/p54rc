@@ -94,7 +94,7 @@ PP(pp_regcomp) {
 	pm->op_pmflags |= PMf_WHITE;
 
     if (pm->op_pmflags & PMf_KEEP) {
-	pm->op_pmflags &= ~PMf_RUNTIME;	/* no point compiling again */
+	pm->op_private &= ~OPpRUNTIME;	/* no point compiling again */
 	hoistmust(pm);
 	cLOGOP->op_first->op_next = op->op_next;
     }

@@ -168,11 +168,20 @@ These operators may spawn the C shell (csh), which cannot be made
 safe.  This restriction will be lifted in a future version of Perl
 when globbing is implemented without the use of an external program.
 
-=item No spawning if tainted $CDPATH, $ENV, $BASH_ENV, or $TERM
+=item No spawning if tainted $CDPATH, $ENV, $BASH_ENV
 
 These environment variables may alter the behavior of spawned programs
 (especially shells) in ways that subvert security.  So now they are
 treated as dangerous, in the manner of $IFS and $PATH.
+
+=item No spawning if tainted $TERM doesn't look like a terminal name
+
+Some termcap libraries do unsafe things with $TERM.  However, it would be
+unnecessarily harsh to treat all $TERM values as unsafe, since only shell
+metacharacters can cause trouble in $TERM.  So a tainted $TERM is
+considered to be safe if it contains only alphanumerics, underscores,
+dashes, and colons, and unsafe if it contains other characters (including
+whitespace).
 
 =back
 
@@ -433,25 +442,16 @@ of course, or if you want a seed other than the default.
 Functions documented in the Camel to default to $_ now in
 fact do, and all those that do are so documented in L<perlfunc>.
 
-=item C<m//g> does not reset search position on failure
+=item C<m//gc> does not reset search position on failure
 
-The C<m//g> match iteration construct used to reset its target string's
-search position (which is visible through the C<pos> operator) when a
-match failed; as a result, the next C<m//g> match would start at the
-beginning of the string).  With Perl 5.004, the search position must be
-reset explicitly, as with C<pos $str = 0;>, or by modifying the target
-string.  This change in Perl makes it possible to chain matches together
-in conjunction with the C<\G> zero-width assertion.  See L<perlop> and
-L<perlre>.
-
-Here is an illustration of what it takes to get the old behavior:
-
-    for ( qw(this and that are not what you think you got) ) {
-        while ( /(\w*t\w*)/g ) { print "t word is: $1\n" }
-        pos = 0;  # REQUIRED FOR 5.004
-        while ( /(\w*a\w*)/g ) { print "a word is: $1\n" }
-        print "\n";
-    }
+The C<m//g> match iteration construct has always reset its target
+string's search position (which is visible through the C<pos> operator)
+when a match fails; as a result, the next C<m//g> match after a failure
+starts again at the beginning of the string.  With Perl 5.004, this
+reset may be disabled by adding the "c" (for "continue") modifier,
+i.e. C<m//gc>.  This feature, in conjunction with the C<\G> zero-width
+assertion, makes it possible to chain matches together.  See L<perlop>
+and L<perlre>.
 
 =item C<m//x> ignores whitespace before ?*+{}
 
@@ -470,16 +470,16 @@ right.  They do now.
 Just like anonymous functions that contain lexical variables
 that change (like a lexical index variable for a C<foreach> loop),
 formats now work properly.  For example, this silently failed
-before, and is fine now:
+before (printed only zeros), but is fine now:
 
     my $i;
     foreach $i ( 1 .. 10 ) {
-	format =
+	write;
+    }
+    format =
 	my i is @#
 	$i
     .
-	write;
-    }
 
 =back
 
@@ -1075,6 +1075,10 @@ new pods are included in section 1:
 
 This document.
 
+=item L<perlfaq>
+
+Frequently asked questions.
+
 =item L<perllocale>
 
 Locale support (internationalization and localization).
@@ -1086,6 +1090,11 @@ Tutorial on Perl OO programming.
 =item L<perlapio>
 
 Perl internal IO abstraction interface.
+
+=item L<perlmodlib>
+
+Perl module library and recommended practice for module creation.
+Extracted from L<perlmod> (which is much smaller as a result).
 
 =item L<perldebug>
 
@@ -1537,4 +1546,4 @@ Constructed by Tom Christiansen, grabbing material with permission
 from innumerable contributors, with kibitzing by more than a few Perl
 porters.
 
-Last update: Sat Mar  8 19:51:26 EST 1997
+Last update: Wed May 14 11:14:09 EDT 1997

@@ -3686,7 +3686,7 @@ PP(pp_gnetent)
 	PUSHs(sv = sv_mortalcopy(&sv_no));
 	sv_setpv(sv, nent->n_name);
 	PUSHs(sv = sv_mortalcopy(&sv_no));
-	for (elem = nent->n_aliases; *elem; elem++) {
+	for (elem = nent->n_aliases; elem && *elem; elem++) {
 	    sv_catpv(sv, *elem);
 	    if (elem[1])
 		sv_catpvn(sv, " ", 1);
@@ -3756,7 +3756,7 @@ PP(pp_gprotoent)
 	PUSHs(sv = sv_mortalcopy(&sv_no));
 	sv_setpv(sv, pent->p_name);
 	PUSHs(sv = sv_mortalcopy(&sv_no));
-	for (elem = pent->p_aliases; *elem; elem++) {
+	for (elem = pent->p_aliases; elem && *elem; elem++) {
 	    sv_catpv(sv, *elem);
 	    if (elem[1])
 		sv_catpvn(sv, " ", 1);
@@ -3843,7 +3843,7 @@ PP(pp_gservent)
 	PUSHs(sv = sv_mortalcopy(&sv_no));
 	sv_setpv(sv, sent->s_name);
 	PUSHs(sv = sv_mortalcopy(&sv_no));
-	for (elem = sent->s_aliases; *elem; elem++) {
+	for (elem = sent->s_aliases; elem && *elem; elem++) {
 	    sv_catpv(sv, *elem);
 	    if (elem[1])
 		sv_catpvn(sv, " ", 1);
@@ -4123,7 +4123,7 @@ PP(pp_ggrent)
 	PUSHs(sv = sv_mortalcopy(&sv_no));
 	sv_setiv(sv, (IV)grent->gr_gid);
 	PUSHs(sv = sv_mortalcopy(&sv_no));
-	for (elem = grent->gr_mem; *elem; elem++) {
+	for (elem = grent->gr_mem; elem && *elem; elem++) {
 	    sv_catpv(sv, *elem);
 	    if (elem[1])
 		sv_catpvn(sv, " ", 1);

@@ -42,7 +42,6 @@ taint_env()
 	"CDPATH",	/* ksh dain bramage #1 */
 	"ENV",		/* ksh dain bramage #2 */
 	"BASH_ENV",	/* bash dain bramage -- I guess it's contagious */
-	"TERM",		/* some termcap libraries' dain bramage */
 	NULL
     };
 
@@ -79,6 +78,25 @@ taint_env()
 	    taint_proper("Insecure directory in %s%s", "$ENV{PATH}");
 	}
     }
+
+#ifndef VMS
+    /* tainted $TERM is okay if it contains no metachars */
+    svp = hv_fetch(GvHVn(envgv),"TERM",4,FALSE);
+    if (svp && *svp && SvTAINTED(*svp)) {
+	bool was_tainted = tainted;
+	char *t = SvPV(*svp, na);
+	char *e = t + na;
+	tainted = was_tainted;
+	if (t < e && isALNUM(*t))
+	    t++;
+	while (t < e && (isALNUM(*t) || *t == '-' || *t == ':'))
+	    t++;
+	if (t < e) {
+	    TAINT;
+	    taint_proper("Insecure $ENV{%s}%s", "TERM");
+	}
+    }
+#endif /* !VMS */
 
     for (e = misc_env; *e; e++) {
 	svp = hv_fetch(GvHVn(envgv), *e, strlen(*e), FALSE);

@@ -58,7 +58,6 @@ For example:
     $path = $ENV{'PATH'};	# $path now tainted
 
     $ENV{'PATH'} = '/bin:/usr/bin';
-    $ENV{'TERM'} = 'dumb';
     delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
 
     $path = $ENV{'PATH'};	# $path now NOT tainted
